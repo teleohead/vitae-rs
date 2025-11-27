@@ -1,3 +1,6 @@
+use crate::model::{format_range, CV};
+use serde::Serialize;
+
 #[derive(Serialize)]
 struct ViewMeta {
     lang: String,
@@ -31,13 +34,13 @@ struct ViewSection {
 }
 
 #[derive(Serialize)]
-struct ViewCV {
+pub struct ViewCV {
     meta: ViewMeta,
     profile: ViewProfile,
     sections: Vec<ViewSection>,
 }
 
-fn build_view(cv: &CV) -> ViewCV {
+pub fn build_view(cv: &CV) -> ViewCV {
     let lang = cv.meta.lang.as_str();
 
     let sections = cv

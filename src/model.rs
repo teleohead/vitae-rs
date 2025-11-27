@@ -47,7 +47,7 @@ pub struct CvBullet {
     pub content: String,
 }
 
-impl CvItem {
+impl CvBullet {
     pub fn to_latex(&self) -> &str {
         &self.content
     }

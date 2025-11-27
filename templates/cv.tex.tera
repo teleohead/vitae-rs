@@ -1,0 +1,126 @@
+%! TEX program = xelatex
+\documentclass[a4paper, 12pt]{article}
+\usepackage{latexsym}
+\usepackage[empty]{fullpage}
+\usepackage{titlesec}
+\usepackage{marvosym}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{verbatim}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+\usepackage[english]{babel}
+\usepackage{tabularx}
+\usepackage{fontawesome5}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\usepackage{tikz}
+
+
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\defaultfontfeatures{Ligatures=TeX}
+\setmainfont{ {{- meta.en_font -}}}
+\setCJKmainfont[Scale=0.87, AutoFakeSlant=true]{ {{- meta.cjk_font -}} }
+
+\pagestyle{fancy}
+\fancyhf{}  % clear all header and footer fields
+\fancyhf[OFR]{\fontsize{10}{12} \emph{2025 年十一月更新}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% adjust margins
+\addtolength{\oddsidemargin}{-0.5in}
+\addtolength{\evensidemargin}{-0.5in}
+\addtolength{\textwidth}{1in}
+\addtolength{\topmargin}{-.5in}
+\addtolength{\textheight}{1.0in}
+
+\urlstyle{same}
+
+\raggedbottom
+\raggedright
+\setlength{\tabcolsep}{0in}
+\setlength{\footskip}{5pt}
+
+% sections formatting
+\titleformat{\section}{
+  \vspace{-4pt}\bfseries\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-5pt}]
+
+{% raw %}
+% custom commands
+\newcommand{\cvitem}[1]{
+  \item{
+    {#1\vspace{-2pt}}
+  }
+}
+
+\newcommand{\cvheading}[4]{
+  \vspace{-7pt}\item\
+    \begin{tabular*}{\textwidth}[t]{l@{\extracolsep{\fill}}r}
+      \textbf{#1} & #2 \\
+      \small #3 & \small#4 \\
+    \end{tabular*}\vspace{-6pt}
+}
+
+{% endraw %}
+
+\newcommand{\cvheadingstart}{\begin{itemize}[leftmargin=0in, label={}]}
+\newcommand{\cvheadingend}{\end{itemize}}
+\newcommand{\cvitemstart}{\begin{itemize}\justifying}
+\newcommand{\cvitemend}{\end{itemize}\vspace{-12pt}}
+
+\renewcommand\labelitemii{$\vcenter{\hbox{\footnotesize$\bullet$}}$}
+
+\begin{document}
+
+% Contact Information
+\begin{center}
+  \textbf{\LARGE {{ profile.name }}} \\ % your name here
+  \vspace{1.4pt}
+  \href{mailto:{{ profile.email }}}{{ profile.email }}
+  $\ \diamond\ $
+  {{ profile.phone }}
+  $\ \diamond\ $
+  \href{https://{{ profile.website }}}{{ profile.website }}
+  $\ \diamond\ $
+  \href{https://github.com/{{ profile.github }}}{GitHub}
+\end{center}
+
+% ===== Sections =====
+{% for s in sections %}
+\section{ {{ s.title }} }
+
+\cvheadingstart
+
+  {% if s.headings | length > 0 %}
+    {% for h in s.headings %}
+      \cvheading
+        { {{ h.title }} }{ {{ h.location }} }
+        { {{ h.subtitle }} }{ {{ h.date }} }
+
+      {% if h.bullets | length > 0 %}
+      \cvitemstart
+        {% for b in h.bullets %}
+          \cvitem{ {{ b | safe }} }
+        {% endfor %}
+      \cvitemend
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  {% if s.bullets | length > 0 %}
+    \item
+      \cvitemstart
+        {% for b in s.bullets %}
+          \cvitem{ {{ b | safe }} }
+        {% endfor %}
+      \cvitemend
+  {% endif %}
+
+\cvheadingend
+
+{% endfor %}
+
+\end{document}
