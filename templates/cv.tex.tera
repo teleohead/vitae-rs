@@ -1,5 +1,5 @@
 %! TEX program = xelatex
-\documentclass[a4paper, 12pt]{article}
+\documentclass[a4paper, {{ meta.font_size }}pt]{article}
 \usepackage{latexsym}
 \usepackage[empty]{fullpage}
 \usepackage{titlesec}
@@ -91,10 +91,8 @@
 % ===== Sections =====
 {% for s in sections %}
 \section{ {{ s.title }} }
-
-\cvheadingstart
-
   {% if s.headings | length > 0 %}
+  \cvheadingstart
     {% for h in s.headings %}
       \cvheading
         { {{ h.title }} }{ {{ h.location }} }
@@ -119,7 +117,6 @@
       \cvitemend
   {% endif %}
 
-\cvheadingend
 
 {% endfor %}
 

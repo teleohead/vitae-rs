@@ -1,4 +1,6 @@
+use std::env;
 use std::fs;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use anyhow::{bail, Context, Result};
@@ -7,26 +9,39 @@ use tera::{Context as TeraContext, Tera};
 
 mod model;
 mod view;
+
 use crate::model::CV;
 use crate::view::build_view;
 
 fn main() -> Result<()> {
-    // Hard-coded paths for now
-    let data_path = "data/cv.yaml";
-    let template_path = "templates/cv.tex.tera";
-    let out_pdf = "cv.pdf";
+    // ----- 1. Parse CLI argument: vitae <cv.yaml> -----
+    let yaml_arg = env::args().nth(1).unwrap_or_else(|| {
+        eprintln!("Usage: vitae <cv.yaml>");
+        std::process::exit(1);
+    });
 
-    // 1. Read YAML
-    let yaml = fs::read_to_string(data_path)
-        .with_context(|| format!("Failed to read data file {data_path}"))?;
+    let yaml_path = Path::new(&yaml_arg);
+
+    // Derive output PDF name: my_cv.yaml -> my_cv.pdf
+    let stem = yaml_path
+        .file_stem()
+        .unwrap_or_else(|| std::ffi::OsStr::new("cv"));
+    let out_pdf: PathBuf = yaml_path.with_file_name(format!("{}.pdf", stem.to_string_lossy()));
+
+    // Template is still fixed for now
+    const TEMPLATE_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/templates/cv.tex.tera");
+
+    // ----- 2. Read YAML -----
+    let yaml = fs::read_to_string(&yaml_path)
+        .with_context(|| format!("Failed to read data file {}", yaml_path.display()))?;
     let cv: CV = serde_yaml::from_str(&yaml).context("Failed to parse YAML into CV")?;
 
-    // 2. Convert to view model (formatted dates + plain bullet strings)
+    // ----- 3. Build view model (dates + bullet strings) -----
     let view = build_view(&cv);
 
-    // 3. Load template into Tera
-    let template_source = fs::read_to_string(template_path)
-        .with_context(|| format!("Failed to read template {template_path}"))?;
+    // ----- 4. Load template into Tera -----
+    let template_source = fs::read_to_string(TEMPLATE_PATH)
+        .with_context(|| format!("Failed to read template {TEMPLATE_PATH}"))?;
 
     let mut tera = Tera::default();
     tera.add_raw_template("cv", &template_source)
@@ -39,12 +54,16 @@ fn main() -> Result<()> {
         .render("cv", &context)
         .context("Failed to render LaTeX template")?;
 
-    // 4. Write cv.tex to a temporary directory
+    // ----- 5. Write cv.tex to a temporary directory -----
     let tmpdir = tempdir().context("Failed to create temporary directory")?;
     let tex_path = tmpdir.path().join("cv.tex");
     fs::write(&tex_path, tex_source).context("Failed to write cv.tex")?;
 
-    // 5. Run latexmk -xelatex
+    // If you’re using a .cls, copy it into the temp dir here, e.g.:
+    // fs::copy("yzcv.cls", tmpdir.path().join("yzcv.cls"))
+    //     .context("Failed to copy yzcv.cls into temp dir")?;
+
+    // ----- 6. Run latexmk -xelatex -----
     let status = Command::new("latexmk")
         .arg("-xelatex")
         .arg("-interaction=nonstopmode")
@@ -58,10 +77,11 @@ fn main() -> Result<()> {
         bail!("latexmk exited with status: {}", status);
     }
 
-    // 6. Copy resulting PDF to project root as cv.pdf
+    // ----- 7. Copy resulting PDF next to the YAML -----
     let pdf_src = tmpdir.path().join("cv.pdf");
-    fs::copy(&pdf_src, out_pdf).with_context(|| format!("Failed to copy PDF to {out_pdf}"))?;
+    fs::copy(&pdf_src, &out_pdf)
+        .with_context(|| format!("Failed to copy PDF to {}", out_pdf.display()))?;
 
-    println!("Wrote {out_pdf}");
+    println!("Wrote {}", out_pdf.display());
     Ok(())
 }

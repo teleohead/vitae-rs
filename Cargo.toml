@@ -1,5 +1,5 @@
 [package]
-name = "vitae-rs"
+name = "vitae"
 version = "0.1.0"
 edition = "2021"
 
@@ -10,3 +10,4 @@ tera = "1.19"
 clap = { version = "4.5", features = ["derive"] }
 anyhow = "1.0"
 tempfile = "3.10"
+regex = "1.11"

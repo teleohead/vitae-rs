@@ -1,4 +1,5 @@
 use crate::model::{format_range, CV};
+use regex::Regex;
 use serde::Serialize;
 
 #[derive(Serialize)]
@@ -6,6 +7,7 @@ struct ViewMeta {
     lang: String,
     en_font: String,
     cjk_font: String,
+    font_size: u8,
 }
 
 #[derive(Serialize)]
@@ -71,7 +73,7 @@ pub fn build_view(cv: &CV) -> ViewCV {
             let bullets = sec
                 .bullets
                 .iter()
-                .map(|b| b.content.clone())
+                .map(|b| markdown_to_latex(&b.content))
                 .collect::<Vec<_>>();
 
             ViewSection {
@@ -87,6 +89,7 @@ pub fn build_view(cv: &CV) -> ViewCV {
             lang: cv.meta.lang.clone(),
             en_font: cv.meta.en_font.clone(),
             cjk_font: cv.meta.cjk_font.clone(),
+            font_size: cv.meta.font_size.clone(),
         },
         profile: ViewProfile {
             name: cv.profile.name.clone(),
@@ -97,4 +100,26 @@ pub fn build_view(cv: &CV) -> ViewCV {
         },
         sections,
     }
+}
+
+fn markdown_to_latex(s: &str) -> String {
+    // Start with the original text
+    let mut out = s.to_string();
+
+    // **bold** → \textbf{...}
+    // non-greedy match between **...**
+    let re_bold = Regex::new(r"\*\*(.+?)\*\*").unwrap();
+    out = re_bold.replace_all(&out, r"\\textbf{$1}").into_owned();
+
+    // *italic* → \emph{...}
+    // simple: match a single * ... * where inside has no other *
+    // this is safe because **...** is already gone from the string above
+    let re_italic = Regex::new(r"\*([^*]+)\*").unwrap();
+    out = re_italic.replace_all(&out, r"\\emph{$1}").into_owned();
+
+    // `code` → \texttt{...}
+    let re_code = Regex::new(r"`(.+?)`").unwrap();
+    out = re_code.replace_all(&out, r"\\texttt{$1}").into_owned();
+
+    out
 }

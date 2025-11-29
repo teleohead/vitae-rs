@@ -5,6 +5,7 @@ pub struct Meta {
     pub lang: String, // "zh" or "en"
     pub en_font: String,
     pub cjk_font: String,
+    pub font_size: u8,
 }
 
 #[derive(Deserialize)]
@@ -45,12 +46,6 @@ pub struct CvSection {
 #[derive(Deserialize)]
 pub struct CvBullet {
     pub content: String,
-}
-
-impl CvBullet {
-    pub fn to_latex(&self) -> &str {
-        &self.content
-    }
 }
 
 #[derive(Deserialize)]
