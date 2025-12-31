@@ -1,7 +1,7 @@
 /*
-    model.rs
-    This represents user-authored input data.
- */
+   model.rs
+   This represents user-authored input data.
+*/
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -28,7 +28,7 @@ pub struct RawHeadline {
     #[serde(default)]
     pub website: String,
     #[serde(default)]
-    pub github: String
+    pub github: String,
 }
 #[derive(Debug, Deserialize)]
 pub struct RawSection {
