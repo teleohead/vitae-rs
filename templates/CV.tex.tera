@@ -5,12 +5,43 @@
 
 \begin{document}
 
+% --- Headline ---
 \begin{center}
     \textbf{\LARGE {{ headline.name }}}
     \vspace{1.4pt}
     \href{mailto:{{ headline.email }}}{{ headline.email }}
     $\ \diamond\ $
     {{ headline.phone }}
+    $\ \diamond\ $
+    \href{https://{{ headline.website }}}{{ headline.website }}
+    $\ \diamond\ $
+    \href{https://github.com/{{ headline.github }}}{GitHub}
 \end{center}
+
+% --- Sections ---
+{% for section in sections %}
+\section{ {{ section.title }} }
+\cvitemstart
+  {% for item in section.items %}
+
+    {% if item.anchor.type == "Heading" %}
+      {% set h = item.anchor.data %}
+      \cvheading
+        { {{ h.title }} }{ {{ h.location }} }
+        { {{ h.subtitle }} }{ {{ h.date_range }} }
+    {% else %}
+      \item
+    {% endif %}
+
+    {% if item.bullets is not empty %}
+      \cvbulletstart
+        {% for bullet in item.bullets %}
+        \cvbullet{ {{ bullet.content | safe }} }
+        {% endfor %}
+      \cvbulletend
+    {% endif %}
+  {% endfor %}
+\cvitemend
+{% endfor %}
 
 \end{document}
