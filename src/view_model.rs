@@ -10,7 +10,7 @@ pub fn render(cv: &model::RawCv) -> ViewCv {
     let lang = &cv.meta.lang;
     ViewCv {
         meta: cv.meta.clone(),
-        headline: render_headline(&cv.headline, lang),
+        headline: render_headline(&cv.headline),
         sections: cv
             .sections
             .iter()
@@ -19,7 +19,7 @@ pub fn render(cv: &model::RawCv) -> ViewCv {
     }
 }
 
-fn render_headline(headline: &model::RawHeadline, lang: &str) -> ViewHeadline {
+fn render_headline(headline: &model::RawHeadline) -> ViewHeadline {
     ViewHeadline {
         name: headline.name.clone(),
         email: headline.email.clone(),
