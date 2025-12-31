@@ -7,7 +7,7 @@
 
 % --- Headline ---
 \begin{center}
-    \textbf{\LARGE {{ headline.name }}}
+    \textbf{\LARGE {{ headline.name }}} \\
     \vspace{1.4pt}
     \href{mailto:{{ headline.email }}}{{ headline.email }}
     $\ \diamond\ $
@@ -20,28 +20,29 @@
 
 % --- Sections ---
 {% for section in sections %}
-\section{ {{ section.title }} }
+
+\section{ {{- section.title -}} }
 \cvitemstart
-  {% for item in section.items %}
+  {%- for item in section.items %}
+    {%- if item.anchor.type == "Heading" %}
+      {%- set h = item.anchor.data %}
+    \cvheading
+        { {{ h.title | safe }} }{ {{ h.location | safe }} }
+        { {{ h.subtitle | safe }} }{ {{ h.date_range | safe }} }
+    {%- else %}
+    \item
+    {%- endif %}
 
-    {% if item.anchor.type == "Heading" %}
-      {% set h = item.anchor.data %}
-      \cvheading
-        { {{ h.title }} }{ {{ h.location }} }
-        { {{ h.subtitle }} }{ {{ h.date_range }} }
-    {% else %}
-      \item
-    {% endif %}
-
-    {% if item.bullets is not empty %}
-      \cvbulletstart
-        {% for bullet in item.bullets %}
+    {%- if item.bullets | length > 0 %}
+    \cvbulletstart
+        {%- for bullet in item.bullets %}
         \cvbullet{ {{ bullet.content | safe }} }
-        {% endfor %}
-      \cvbulletend
-    {% endif %}
-  {% endfor %}
+        {%- endfor %}
+    \cvbulletend
+    {%- endif %}
+  {%- endfor %}
 \cvitemend
+\vspace{0pt}
 {% endfor %}
 
 \end{document}
