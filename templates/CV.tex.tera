@@ -1,0 +1,16 @@
+\documentclass{vitae}
+
+\setmainfont{ {{- meta.en_font -}} }
+\setCJKmainfont[Scale=0.87, AutoFakeSlant=true]{ {{- meta.cjk_font -}} }
+
+\begin{document}
+
+\begin{center}
+    \textbf{\LARGE {{ headline.name }}}
+    \vspace{1.4pt}
+    \href{mailto:{{ headline.email }}}{{ headline.email }}
+    $\ \diamond\ $
+    {{ headline.phone }}
+\end{center}
+
+\end{document}
